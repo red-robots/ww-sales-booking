@@ -25,8 +25,20 @@ app.use('/api/reservations', reservationsRouter);
 
 // Serve static frontend in production
 const clientDist = path.join(__dirname, '..', '..', 'client', 'dist');
-app.use(express.static(clientDist));
-app.get('*', (_req, res) => {
+
+const DENIED_HTML = `<!DOCTYPE html><html><head><title>Access Denied</title></head>
+<body style="font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8fafc">
+<div style="text-align:center"><h1 style="color:#1e293b">Access Denied</h1><p style="color:#64748b">You don't have permission to view this calendar.</p></div>
+</body></html>`;
+
+function checkPageAccess(req: express.Request, res: express.Response, next: express.NextFunction) {
+  if (!ACCESS_KEY) return next();
+  if (req.query.access_key === ACCESS_KEY) return next();
+  res.status(401).send(DENIED_HTML);
+}
+
+app.use(express.static(clientDist, { index: false }));
+app.get('*', checkPageAccess, (_req, res) => {
   res.sendFile(path.join(clientDist, 'index.html'));
 });
 
