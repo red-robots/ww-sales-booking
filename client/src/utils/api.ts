@@ -2,10 +2,19 @@ import type { Room, Reservation, ReservationFormData } from '../types';
 
 const BASE = '/api';
 
+function getAccessKey(): string {
+  const stored = sessionStorage.getItem('access_key');
+  if (stored) return stored;
+  const params = new URLSearchParams(window.location.search);
+  const key = params.get('access_key') || '';
+  if (key) sessionStorage.setItem('access_key', key);
+  return key;
+}
+
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${url}`, {
-    headers: { 'Content-Type': 'application/json' },
     ...options,
+    headers: { 'Content-Type': 'application/json', 'x-access-key': getAccessKey(), ...options?.headers },
   });
 
   if (res.status === 204) return undefined as T;

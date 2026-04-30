@@ -10,6 +10,18 @@ import RoomLegend from './components/RoomLegend';
 
 export default function App() {
   const { rooms, reservations, loading, error, calendarState, setCalendarState, refetch } = useCalendarData();
+  const [unauthorized, setUnauthorized] = useState(false);
+
+  if (error === 'Unauthorized' || unauthorized) {
+    return (
+      <div className="h-full flex items-center justify-center bg-slate-50">
+        <div className="text-center p-8">
+          <h1 className="text-2xl font-bold text-slate-800 mb-2">Access Denied</h1>
+          <p className="text-slate-500">You don't have permission to view this calendar.</p>
+        </div>
+      </div>
+    );
+  }
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);

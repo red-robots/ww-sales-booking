@@ -6,9 +6,18 @@ import reservationsRouter from './routes/reservations';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const ACCESS_KEY = process.env.ACCESS_KEY || '';
 
 app.use(cors());
 app.use(express.json());
+
+// Protect API routes with access key
+app.use('/api', (req, res, next) => {
+  if (!ACCESS_KEY) return next();
+  const token = req.headers['x-access-key'] as string;
+  if (token === ACCESS_KEY) return next();
+  res.status(401).json({ error: 'Unauthorized' });
+});
 
 // API routes
 app.use('/api/rooms', roomsRouter);
