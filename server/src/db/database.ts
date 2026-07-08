@@ -33,15 +33,27 @@ db.exec(`
     notes TEXT,
     client_name TEXT,
     salesperson_name TEXT,
+    coordinator_name TEXT,
     created_by TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE
   );
 
+  CREATE TABLE IF NOT EXISTS coordinators (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE
+  );
+
   CREATE INDEX IF NOT EXISTS idx_reservations_room_id ON reservations(room_id);
   CREATE INDEX IF NOT EXISTS idx_reservations_datetime ON reservations(start_datetime, end_datetime);
 `);
+
+// Migrate existing databases that predate the coordinator_name column
+const reservationColumns = db.prepare('PRAGMA table_info(reservations)').all() as { name: string }[];
+if (!reservationColumns.some((col) => col.name === 'coordinator_name')) {
+  db.exec('ALTER TABLE reservations ADD COLUMN coordinator_name TEXT');
+}
 
 // Auto-seed rooms if the table is empty (handles ephemeral filesystems like Render free tier)
 const roomCount = db.prepare('SELECT COUNT(*) as count FROM rooms').get() as { count: number };

@@ -6,6 +6,11 @@ export interface Room {
   capacity?: number;
 }
 
+export interface Coordinator {
+  id: string;
+  name: string;
+}
+
 export interface Reservation {
   id: string;
   room_id: string;
@@ -16,6 +21,7 @@ export interface Reservation {
   notes?: string;
   client_name?: string;
   salesperson_name?: string;
+  coordinator_name?: string;
   created_by?: string;
   created_at: string;
   updated_at: string;

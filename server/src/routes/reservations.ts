@@ -60,7 +60,7 @@ router.get('/:id', (req, res) => {
 
 // POST create reservation
 router.post('/', (req, res) => {
-  const { room_id, title, status, start_datetime, end_datetime, notes, client_name, salesperson_name, created_by } = req.body;
+  const { room_id, title, status, start_datetime, end_datetime, notes, client_name, salesperson_name, coordinator_name, created_by } = req.body;
 
   if (!room_id || !title || !status || !start_datetime || !end_datetime) {
     return res.status(400).json({ error: 'room_id, title, status, start_datetime, and end_datetime are required' });
@@ -83,9 +83,9 @@ router.post('/', (req, res) => {
   const now = new Date().toISOString();
 
   db.prepare(`
-    INSERT INTO reservations (id, room_id, title, status, start_datetime, end_datetime, notes, client_name, salesperson_name, created_by, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(id, room_id, title, status, start_datetime, end_datetime, notes || null, client_name || null, salesperson_name || null, created_by || null, now, now);
+    INSERT INTO reservations (id, room_id, title, status, start_datetime, end_datetime, notes, client_name, salesperson_name, coordinator_name, created_by, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(id, room_id, title, status, start_datetime, end_datetime, notes || null, client_name || null, salesperson_name || null, coordinator_name || null, created_by || null, now, now);
 
   const reservation = db.prepare('SELECT * FROM reservations WHERE id = ?').get(id);
   res.status(201).json(reservation);
@@ -96,7 +96,7 @@ router.put('/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM reservations WHERE id = ?').get(req.params.id) as Record<string, string> | undefined;
   if (!existing) return res.status(404).json({ error: 'Reservation not found' });
 
-  const { room_id, title, status, start_datetime, end_datetime, notes, client_name, salesperson_name } = req.body;
+  const { room_id, title, status, start_datetime, end_datetime, notes, client_name, salesperson_name, coordinator_name } = req.body;
 
   const newRoomId = room_id || existing.room_id;
   const newStart = start_datetime || existing.start_datetime;
@@ -121,7 +121,7 @@ router.put('/:id', (req, res) => {
   db.prepare(`
     UPDATE reservations SET
       room_id = ?, title = ?, status = ?, start_datetime = ?, end_datetime = ?,
-      notes = ?, client_name = ?, salesperson_name = ?, updated_at = ?
+      notes = ?, client_name = ?, salesperson_name = ?, coordinator_name = ?, updated_at = ?
     WHERE id = ?
   `).run(
     newRoomId,
@@ -132,6 +132,7 @@ router.put('/:id', (req, res) => {
     notes !== undefined ? notes : existing.notes,
     client_name !== undefined ? client_name : existing.client_name,
     salesperson_name !== undefined ? salesperson_name : existing.salesperson_name,
+    coordinator_name !== undefined ? coordinator_name : existing.coordinator_name,
     now,
     req.params.id
   );

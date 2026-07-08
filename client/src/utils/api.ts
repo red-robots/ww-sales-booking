@@ -1,4 +1,4 @@
-import type { Room, Reservation, ReservationFormData } from '../types';
+import type { Room, Reservation, ReservationFormData, Coordinator } from '../types';
 
 const BASE = '/api';
 
@@ -31,6 +31,11 @@ export const api = {
     create: (data: Partial<Room>) => request<Room>('/rooms', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: string, data: Partial<Room>) => request<Room>(`/rooms/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: string) => request<void>(`/rooms/${id}`, { method: 'DELETE' }),
+  },
+  coordinators: {
+    list: () => request<Coordinator[]>('/coordinators'),
+    create: (name: string) => request<Coordinator>('/coordinators', { method: 'POST', body: JSON.stringify({ name }) }),
+    delete: (id: string) => request<void>(`/coordinators/${id}`, { method: 'DELETE' }),
   },
   reservations: {
     list: (params?: { start?: string; end?: string; room_id?: string; status?: string }) => {

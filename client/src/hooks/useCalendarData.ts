@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Room, Reservation, CalendarState } from '../types';
+import type { Room, Reservation, CalendarState, Coordinator } from '../types';
 import { api } from '../utils/api';
 import { getWeekRange, getDayRange } from '../utils/calendar';
 
 export function useCalendarData() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [coordinators, setCoordinators] = useState<Coordinator[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [calendarState, setCalendarState] = useState<CalendarState>({
@@ -24,7 +25,7 @@ export function useCalendarData() {
         ? getWeekRange(calendarState.currentDate)
         : getDayRange(calendarState.currentDate);
 
-      const [roomsData, reservationsData] = await Promise.all([
+      const [roomsData, reservationsData, coordinatorsData] = await Promise.all([
         api.rooms.list(),
         api.reservations.list({
           start: range.start.toISOString(),
@@ -32,10 +33,12 @@ export function useCalendarData() {
           ...(calendarState.selectedRoomId ? { room_id: calendarState.selectedRoomId } : {}),
           ...(calendarState.statusFilter !== 'all' ? { status: calendarState.statusFilter } : {}),
         }),
+        api.coordinators.list(),
       ]);
 
       setRooms(roomsData);
       setReservations(reservationsData);
+      setCoordinators(coordinatorsData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {
@@ -50,6 +53,7 @@ export function useCalendarData() {
   return {
     rooms,
     reservations,
+    coordinators,
     loading,
     error,
     calendarState,

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Room, Reservation, ReservationFormData } from '../types';
+import type { Room, Reservation, ReservationFormData, Coordinator } from '../types';
 import { format } from 'date-fns';
 import StatusBadge from './StatusBadge';
 
@@ -9,6 +9,7 @@ interface ReservationModalProps {
   onSave: (data: ReservationFormData) => Promise<void>;
   onDelete?: () => Promise<void>;
   rooms: Room[];
+  coordinators: Coordinator[];
   reservation?: Reservation | null;
   defaultRoomId?: string;
   defaultStart?: Date;
@@ -20,6 +21,7 @@ export default function ReservationModal({
   onSave,
   onDelete,
   rooms,
+  coordinators,
   reservation,
   defaultRoomId,
   defaultStart,
@@ -43,6 +45,7 @@ export default function ReservationModal({
     notes: '',
     client_name: '',
     salesperson_name: '',
+    coordinator_name: '',
     created_by: '',
   });
 
@@ -66,6 +69,7 @@ export default function ReservationModal({
         notes: reservation.notes || '',
         client_name: reservation.client_name || '',
         salesperson_name: reservation.salesperson_name || '',
+        coordinator_name: reservation.coordinator_name || '',
         created_by: reservation.created_by || '',
       });
     } else {
@@ -82,6 +86,7 @@ export default function ReservationModal({
         notes: '',
         client_name: '',
         salesperson_name: '',
+        coordinator_name: '',
         created_by: '',
       });
     }
@@ -111,6 +116,7 @@ export default function ReservationModal({
         notes: formData.notes || undefined,
         client_name: formData.client_name || undefined,
         salesperson_name: formData.salesperson_name || undefined,
+        coordinator_name: formData.coordinator_name || undefined,
         created_by: formData.created_by || undefined,
       });
       onClose();
@@ -294,6 +300,27 @@ export default function ReservationModal({
             </div>
           </div>
 
+          {/* Event Coordinator */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Event Coordinator</label>
+            <select
+              value={formData.coordinator_name}
+              onChange={(e) => setFormData({ ...formData, coordinator_name: e.target.value })}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">None</option>
+              {/* Keep a coordinator assigned before they were removed from settings */}
+              {formData.coordinator_name && !coordinators.some((c) => c.name === formData.coordinator_name) && (
+                <option value={formData.coordinator_name}>{formData.coordinator_name}</option>
+              )}
+              {coordinators.map((coordinator) => (
+                <option key={coordinator.id} value={coordinator.name}>
+                  {coordinator.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Notes */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Notes</label>
@@ -340,6 +367,7 @@ export default function ReservationModal({
                         notes: formData.notes || undefined,
                         client_name: formData.client_name || undefined,
                         salesperson_name: formData.salesperson_name || undefined,
+                        coordinator_name: formData.coordinator_name || undefined,
                         created_by: formData.created_by || undefined,
                       });
                       onClose();

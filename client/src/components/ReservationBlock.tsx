@@ -70,7 +70,7 @@ export default function ReservationBlock({ reservation, room, onClick, onDragSta
         borderStyle: isHeld ? 'dashed' : 'solid',
         borderColor: isHeld ? room.color : 'transparent',
       }}
-      title={`${reservation.title} (${reservation.status})\n${formatTime(reservation.start_datetime)} – ${formatTime(reservation.end_datetime)}`}
+      title={`${reservation.title} (${reservation.status})\n${formatTime(reservation.start_datetime)} – ${formatTime(reservation.end_datetime)}${reservation.coordinator_name ? `\nEC: ${reservation.coordinator_name}` : ''}`}
       onMouseDown={(e) => handleMouseDown(e, 'move')}
       onClick={handleClick}
     >
@@ -82,6 +82,11 @@ export default function ReservationBlock({ reservation, room, onClick, onDragSta
           <div className="text-white/80 text-[10px] leading-tight truncate pointer-events-none">
             {formatTime(reservation.start_datetime)} – {formatTime(reservation.end_datetime)}
           </div>
+          {reservation.coordinator_name && (
+            <div className="text-white/90 text-[10px] font-medium leading-tight truncate pointer-events-none">
+              EC: {reservation.coordinator_name}
+            </div>
+          )}
           {reservation.client_name && (
             <div className="text-white/70 text-[10px] leading-tight truncate pointer-events-none">
               {reservation.client_name}

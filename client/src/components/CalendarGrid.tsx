@@ -384,17 +384,24 @@ export default function CalendarGrid({
                   />
                 ))}
 
-                {/* Current time indicator */}
+                {/* Current time indicator (dot only on the day's first column so it reads as one line) */}
                 {isToday(col.day) &&
                   (() => {
                     const now = new Date();
                     const minutesFromStart = (now.getHours() - START_HOUR) * 60 + now.getMinutes();
                     if (minutesFromStart < 0 || minutesFromStart > (END_HOUR - START_HOUR) * 60) return null;
                     const top = (minutesFromStart / 60) * HOUR_HEIGHT;
+                    const isFirstColOfDay = colIndex === 0 || !isSameDay(columns[colIndex - 1].day, col.day);
+                    const isLastColOfDay = colIndex === columns.length - 1 || !isSameDay(columns[colIndex + 1].day, col.day);
                     return (
-                      <div className="absolute left-0 right-0 z-20 pointer-events-none" style={{ top: `${top}px` }}>
+                      <div
+                        className="absolute z-20 pointer-events-none"
+                        style={{ top: `${top}px`, left: 0, right: isLastColOfDay ? 0 : '-1px' }}
+                      >
                         <div className="h-0.5 bg-red-500 relative">
-                          <div className="absolute -left-1 -top-1 w-2.5 h-2.5 bg-red-500 rounded-full" />
+                          {isFirstColOfDay && (
+                            <div className="absolute -left-1 -top-1 w-2.5 h-2.5 bg-red-500 rounded-full" />
+                          )}
                         </div>
                       </div>
                     );

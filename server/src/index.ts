@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import roomsRouter from './routes/rooms';
 import reservationsRouter from './routes/reservations';
+import coordinatorsRouter from './routes/coordinators';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -22,6 +23,7 @@ app.use('/api', (req, res, next) => {
 // API routes
 app.use('/api/rooms', roomsRouter);
 app.use('/api/reservations', reservationsRouter);
+app.use('/api/coordinators', coordinatorsRouter);
 
 // Serve static frontend in production
 const clientDist = path.join(__dirname, '..', '..', 'client', 'dist');
